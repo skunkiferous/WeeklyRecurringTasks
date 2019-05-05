@@ -6,7 +6,7 @@ use Kanboard\Model\TaskModel;
 use Kanboard\Model\TaskTagModel;
 use Kanboard\Model\ProjectModel;
 /**
- * Clone Tasks with the DAILY/WEEKLY/BIWEEKLY tag.
+ * Automatically Clone Tasks with the DAILY/WEEKLY/BIWEEKLY tag.
  *
  * @package action
  * @author  Sebastien Diot

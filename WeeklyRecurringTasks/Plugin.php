@@ -25,7 +25,7 @@ class Plugin extends Base
 
     public function getPluginDescription()
     {
-        return t('Clone closed Tasks with the WEEKLY tag');
+        return t('Automatically Clone Kanboard Tasks with the DAILY/WEEKLY/BIWEEKLY tag.');
     }
 
     public function getPluginAuthor()
@@ -40,7 +40,7 @@ class Plugin extends Base
 
     public function getPluginHomepage()
     {
-        return 'https://github.com/kanboard/plugin-myplugin';
+        return 'https://github.com/skunkiferous/WeeklyRecurringTasks';
     }
 }
 

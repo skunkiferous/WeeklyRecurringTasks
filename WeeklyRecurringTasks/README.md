@@ -1,7 +1,7 @@
 Weekly Recurring Tasks
 ==============================
 
-Clone Tasks with the DAILY/WEEKLY/BIWEEKLY tag.
+Automatically Clone Kanboard Tasks with the DAILY/WEEKLY/BIWEEKLY tag.
 
 Author
 ------
