@@ -161,7 +161,7 @@ class WeeklyRecurringTask extends Base
     {
 		error_log('WeeklyRecurringTask.doAction() CALLED');
 		$result = true;
-		foreach ($this->projectModel()->getListByStatus(ProjectModel::ACTIVE) as $project) {
+		foreach ($this->projectModel->getListByStatus(ProjectModel::ACTIVE) as $project) {
 			$project_name = $project['name'];
 			$project_id = $project['id'];
 			error_log('WeeklyRecurringTask.doAction() PROCESSING: ' . $project_name . ' ' . $project_id);
