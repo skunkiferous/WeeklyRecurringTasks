@@ -5,8 +5,12 @@ use Kanboard\Model\TagModel;
 use Kanboard\Model\TaskModel;
 use Kanboard\Model\TaskTagModel;
 use Kanboard\Model\ProjectModel;
+use Kanboard\Model\TaskProjectDuplicationModel;
+
 /**
- * Automatically Clone Tasks with the DAILY/WEEKLY/BIWEEKLY tag.
+ * Automatically Clone Tasks with the DAILY/WEEKLY/BIWEEKLY/DAY-OF-WEEK-IN-CAPITAL tag.
+ * 
+ * DAY-OF-WEEK-IN-CAPITAL: MONDAY/TUESDAY/WEDNESDAY/THURSDAY/FRIDAY/SATURDAY/SUNDAY
  *
  * @package action
  * @author  Sebastien Diot
@@ -21,7 +25,7 @@ class WeeklyRecurringTask extends Base
      */
     public function getDescription()
     {
-        return t('Automatically clone Tasks with the DAILY/WEEKLY/BIWEEKLY tag');
+        return t('Automatically clone Tasks with the DAILY/WEEKLY/BIWEEKLY/DAY-OF-WEEK-IN-CAPITAL tag');
     }
     /**
      * Get the list of compatible events
@@ -86,14 +90,16 @@ class WeeklyRecurringTask extends Base
                     ->columns(
                         TaskModel::TABLE.'.id',
                         TaskModel::TABLE.'.project_id',
-                        TaskModel::TABLE.'.date_due'
+                        TaskModel::TABLE.'.date_due',
+                        TaskModel::TABLE.'.title'
                     )
                     ->join(TaskTagModel::TABLE, 'task_id', 'id')
                     ->eq(TaskTagModel::TABLE.'.tag_id', $tag_id)
                     ->eq(TaskModel::TABLE.'.project_id', $project_id)
                     /*->eq(TaskModel::TABLE.'.is_active', 0)*/
                     ->gte(TaskModel::TABLE.'.date_due', strtotime("-1 day"))
-                    ->lte(TaskModel::TABLE.'.date_due', strtotime("+1 day"))->getAll('id','title','date_due');
+                    ->lte(TaskModel::TABLE.'.date_due', strtotime("+1 day"))
+					->findAll();
     }
     /**
      * Check if the task was duplicated already
@@ -120,17 +126,19 @@ class WeeklyRecurringTask extends Base
 	private function processProject($project_id, $tag, $delay)
 	{
 		$result = true;
-		foreach ($this->getDueTasks($project_id, $tag) as $task) {
+		$due_tasks = $this->getDueTasks($project_id, $tag);
+		foreach ($due_tasks as $task) {
 			$task_id = $task['id'];
 			$task_title = $task['title'];
 			$task_date_due = $task['date_due'];
 			$new_due_date = strtotime($delay, $task_date_due);
-			$duplicated = wasDuplicated($project_id, $task_title, $new_due_date);
-			error_log('WeeklyRecurringTask.processProject(' . $project_id . ', ' . $tag . ', ' . $delay . '): FOUND DUE TASK: ' . $task_title . ' ' . $task_id . ', DUPLICATED: ' . $duplicated);
+			$duplicated = $this->wasDuplicated($project_id, $task_title, $new_due_date);
 			if (!$duplicated) {
-				$new_task_id = (bool) $this->taskProjectDuplicationModel->duplicateToProject($task_id, $project_id);
-				if ($new_task_id) {
-					$this->taskModificationModel->update(array('id' => $new_task_id, 'is_active' => 1, 'date_due' => $new_due_date));
+				$new_task_id = $this->taskProjectDuplicationModel->duplicateToProject($task_id, $project_id);
+				if ($new_task_id !== false) {
+					if (!$this->taskModificationModel->update(array('id' => $new_task_id, 'is_active' => 1, 'date_due' => $new_due_date))) {
+						error_log('Failed to update duplicated task: ID=' . $new_task_id . ', TITLE=' . $task_title . ', PROJECT=' . $project_id);
+					}
 				} else {
 					error_log('Failed to duplicate task: ID=' . $task_id . ', TITLE=' . $task_title . ', PROJECT=' . $project_id);
 					$result = false;
@@ -159,12 +167,10 @@ class WeeklyRecurringTask extends Base
      */
     public function doAction(array $data)
     {
-		error_log('WeeklyRecurringTask.doAction() CALLED');
 		$result = true;
 		foreach ($this->projectModel->getAllByStatus(ProjectModel::ACTIVE) as $project) {
 			$project_name = $project['name'];
 			$project_id = $project['id'];
-			error_log('WeeklyRecurringTask.doAction() PROCESSING: ' . $project_name . ' ' . $project_id);
 			$result = $this->processProject($project_id, "DAILY", "+1 day");
 			if (!$result) {
 				Break;
@@ -177,8 +183,14 @@ class WeeklyRecurringTask extends Base
 			if (!$result) {
 				Break;
 			}
+			// Now, for the day-specific tags...
+			$today = strtoupper(date("l", time()));
+			var_dump($today);
+			$result = $this->processProject($project_id, $today, "+7 day");
+			if (!$result) {
+				Break;
+			}
 		}
-		error_log('WeeklyRecurringTask.doAction() RETURNING ' . $result);
 		return $result;
     }
 }

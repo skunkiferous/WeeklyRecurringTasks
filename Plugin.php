@@ -25,7 +25,7 @@ class Plugin extends Base
 
     public function getPluginDescription()
     {
-        return t('Automatically Clone Kanboard Tasks with the DAILY/WEEKLY/BIWEEKLY tag.');
+        return t('Automatically Clone Kanboard Tasks with the DAILY/WEEKLY/BIWEEKLY/DAY-OF-WEEK-IN-CAPITAL tag.');
     }
 
     public function getPluginAuthor()
@@ -35,7 +35,7 @@ class Plugin extends Base
 
     public function getPluginVersion()
     {
-        return '1.0.0';
+        return '1.0.1';
     }
 
     public function getPluginHomepage()

@@ -1,7 +1,7 @@
 Weekly Recurring Tasks
 ==============================
 
-Automatically Clone Kanboard Tasks with the DAILY/WEEKLY/BIWEEKLY tag.
+Automatically Clone Kanboard Tasks with the DAILY/WEEKLY/BIWEEKLY/DAY-OF-WEEK-IN-CAPITAL tag.
 
 Author
 ------
@@ -33,3 +33,4 @@ Tags (SHOULD) works as follow:
 - DAILY: Clone a task, annotated with this tag and reaching due date, to the next day.
 - WEEKLY: Clone a task, annotated with this tag and reaching due date, to the next week (in 7 days).
 - BIWEEKLY: Clone a task, annotated with this tag and reaching due date, to the over next week (in 14 days).
+- MONDAY/TUESDAY/WEDNESDAY/THURSDAY/FRIDAY/SATURDAY/SUNDAY: Clone a task, annotated with this tag and reaching due date, to the next week (in 7 days).
